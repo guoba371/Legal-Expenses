@@ -323,6 +323,25 @@
       letter-spacing: 0;
     }
 
+    select {
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid var(--separator);
+      border-radius: var(--radius);
+      background: var(--surface-strong);
+      color: var(--text);
+      padding: 0 14px;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--blue);
+    }
+
     .quick-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -388,6 +407,98 @@
     .results {
       display: grid;
       gap: 16px;
+    }
+
+    .calculator-section {
+      margin-top: 28px;
+    }
+
+    .section-intro {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+
+    .section-intro h2 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .section-intro p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--secondary);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .check-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .detail-list {
+      display: grid;
+      margin-top: 16px;
+      border-top: 1px solid var(--separator-soft);
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--separator-soft);
+    }
+
+    .detail-row span {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .detail-row small {
+      display: block;
+      margin-top: 2px;
+      color: var(--secondary);
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 400;
+    }
+
+    .detail-row strong {
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .result-meta {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      color: var(--secondary);
+      font-size: 13px;
+      line-height: 1.5;
     }
 
     .result-grid {
@@ -648,6 +759,10 @@
         grid-template-columns: 1fr;
       }
 
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
       .field label {
         display: grid;
         gap: 2px;
@@ -854,10 +969,290 @@
             <li>深圳律师服务收费现行按市场调节，律师费结果不是法定固定价格，实际以律所报价或委托合同为准。</li>
             <li>本工具仅估算一审民事财产案件常见前期费用，不包含公告、鉴定、评估、翻译、差旅、执行、上诉、反诉、调解结案或简易程序减半等费用变化。</li>
             <li>法院费用公式参考福田法院转载的《诉讼费用交纳办法》；律师费参考旧《广东省律师服务政府指导价》；第三方保险费为市场区间估算。</li>
+            <li>工伤赔偿参考《广东省工伤保险条例》伤残待遇月数，并使用深圳市统计局发布的 2024 年在岗职工年平均工资折算月均工资。</li>
+            <li>交通事故赔偿参考人身损害赔偿通用项目，残疾赔偿金、死亡赔偿金和被扶养人生活费使用深圳市 2025 年居民收入和消费支出数据。</li>
             <li>资料来源：<a href="https://sf.sz.gov.cn/xxgk/xxgkml/zcfg/content/post_2980094.html" target="_blank" rel="noreferrer">深圳市司法局</a>、<a href="https://www.ftcourt.gov.cn/ssfw/sszn/content/post_1424806.html" target="_blank" rel="noreferrer">深圳市福田区人民法院</a>。</li>
+            <li>新增来源：<a href="https://www.gd.gov.cn/zwgk/wjk/zcfgk/content/post_2523998.html" target="_blank" rel="noreferrer">广东省工伤保险条例</a>、<a href="https://tjj.sz.gov.cn/szstjjwzgkml/szstjjwzgkml/sjfb/tjgb/content/post_12561966.html" target="_blank" rel="noreferrer">深圳2024平均工资</a>、<a href="https://tjj.sz.gov.cn/zwgk/zfxxgkml/tjsj/tjgb/content/post_12803919.html" target="_blank" rel="noreferrer">深圳2025统计公报</a>。</li>
           </ul>
         </section>
       </div>
+    </section>
+
+    <section class="calculator-section" aria-labelledby="work-title">
+      <div class="section-intro">
+        <h2 id="work-title">深圳工伤赔偿计算</h2>
+        <p>按伤残等级、本人工资、是否解除或终止劳动关系，估算一次性伤残补助金、一次性工伤医疗补助金、一次性伤残就业补助金及常见已发生费用。</p>
+      </div>
+      <section class="workspace">
+        <form class="panel inputs" id="workCalculator" autocomplete="off">
+          <div class="section-title">
+            <h2>工伤输入</h2>
+            <span class="tag">伤残</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="workMonthlyWage"><span>本人月工资</span><span>元/月</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="workMonthlyWage" inputmode="decimal" value="12000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="workGrade"><span>伤残等级</span><span>1-10级</span></label>
+              <select id="workGrade">
+                <option value="10" selected>十级</option>
+                <option value="9">九级</option>
+                <option value="8">八级</option>
+                <option value="7">七级</option>
+                <option value="6">六级</option>
+                <option value="5">五级</option>
+                <option value="4">四级</option>
+                <option value="3">三级</option>
+                <option value="2">二级</option>
+                <option value="1">一级</option>
+              </select>
+            </div>
+            <label class="check-field field full" for="workTerminate">
+              <input id="workTerminate" type="checkbox" checked>
+              <span>解除或终止劳动关系，计算一次性医疗和就业补助金</span>
+            </label>
+            <div class="field">
+              <label for="workMedical"><span>医疗费等已发生费用</span><span>按票据</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="workMedical" inputmode="decimal" value="8000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="workPaidMonths"><span>停工留薪期</span><span>月</span></label>
+              <div class="money-box">
+                <input id="workPaidMonths" inputmode="decimal" value="3">
+                <span class="suffix">月</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="workHospitalDays"><span>住院天数</span><span>天</span></label>
+              <div class="money-box">
+                <input id="workHospitalDays" inputmode="decimal" value="10">
+                <span class="suffix">天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="workMealRate"><span>伙食补助日标准</span><span>可调整</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="workMealRate" inputmode="decimal" value="100">
+                <span class="suffix">元/天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="workNursingDays"><span>护理天数</span><span>天</span></label>
+              <div class="money-box">
+                <input id="workNursingDays" inputmode="decimal" value="10">
+                <span class="suffix">天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="workNursingRate"><span>护理费日标准</span><span>可调整</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="workNursingRate" inputmode="decimal" value="200">
+                <span class="suffix">元/天</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <article class="panel metric">
+          <header>
+            <div>
+              <h3>工伤赔偿明细</h3>
+              <p>五级至十级解除或终止劳动关系时，增加一次性工伤医疗补助金和一次性伤残就业补助金。</p>
+            </div>
+            <span class="badge">估算</span>
+          </header>
+          <strong class="amount blue" id="workTotal">¥0</strong>
+          <p id="workSummary">一次性项目合计</p>
+          <div class="detail-list" id="workLines"></div>
+          <div class="result-meta" id="workMeta"></div>
+        </article>
+      </section>
+    </section>
+
+    <section class="calculator-section" aria-labelledby="traffic-title">
+      <div class="section-intro">
+        <h2 id="traffic-title">深圳交通事故赔偿计算</h2>
+        <p>按深圳 2025 年居民收入和消费支出标准，估算医疗费、误工费、护理费、残疾赔偿金或死亡赔偿金等明细，并按责任比例折算应赔金额。</p>
+      </div>
+      <section class="workspace">
+        <form class="panel inputs" id="trafficCalculator" autocomplete="off">
+          <div class="section-title">
+            <h2>交通事故输入</h2>
+            <span class="tag">人损</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="trafficType"><span>损害类型</span><span>单一口径</span></label>
+              <select id="trafficType">
+                <option value="disability" selected>伤残</option>
+                <option value="death">死亡</option>
+                <option value="none">未定残</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="trafficAge"><span>受害人年龄</span><span>岁</span></label>
+              <div class="money-box">
+                <input id="trafficAge" inputmode="decimal" value="35">
+                <span class="suffix">岁</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficGrade"><span>伤残等级</span><span>伤残时填写</span></label>
+              <select id="trafficGrade">
+                <option value="10" selected>十级</option>
+                <option value="9">九级</option>
+                <option value="8">八级</option>
+                <option value="7">七级</option>
+                <option value="6">六级</option>
+                <option value="5">五级</option>
+                <option value="4">四级</option>
+                <option value="3">三级</option>
+                <option value="2">二级</option>
+                <option value="1">一级</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="trafficLiability"><span>责任比例</span><span>赔偿方</span></label>
+              <div class="money-box">
+                <input id="trafficLiability" inputmode="decimal" value="70">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficMedical"><span>医疗费</span><span>按票据</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficMedical" inputmode="decimal" value="20000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficMonthlyIncome"><span>月收入</span><span>误工费</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficMonthlyIncome" inputmode="decimal" value="15000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficLostDays"><span>误工天数</span><span>天</span></label>
+              <div class="money-box">
+                <input id="trafficLostDays" inputmode="decimal" value="60">
+                <span class="suffix">天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficNursingDays"><span>护理天数</span><span>天</span></label>
+              <div class="money-box">
+                <input id="trafficNursingDays" inputmode="decimal" value="30">
+                <span class="suffix">天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficNursingRate"><span>护理费日标准</span><span>可调整</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficNursingRate" inputmode="decimal" value="200">
+                <span class="suffix">元/天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficHospitalDays"><span>住院天数</span><span>天</span></label>
+              <div class="money-box">
+                <input id="trafficHospitalDays" inputmode="decimal" value="15">
+                <span class="suffix">天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficMealRate"><span>伙食补助日标准</span><span>可调整</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficMealRate" inputmode="decimal" value="100">
+                <span class="suffix">元/天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficNutritionDays"><span>营养天数</span><span>天</span></label>
+              <div class="money-box">
+                <input id="trafficNutritionDays" inputmode="decimal" value="30">
+                <span class="suffix">天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficNutritionRate"><span>营养费日标准</span><span>可调整</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficNutritionRate" inputmode="decimal" value="50">
+                <span class="suffix">元/天</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficTransport"><span>交通费</span><span>实际必要</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficTransport" inputmode="decimal" value="1000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficProperty"><span>财产损失</span><span>车辆物品</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficProperty" inputmode="decimal" value="3000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficMental"><span>精神损害抚慰金</span><span>可调整</span></label>
+              <div class="money-box">
+                <span class="prefix">¥</span>
+                <input id="trafficMental" inputmode="decimal" value="10000">
+                <span class="suffix">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficDependentYears"><span>被扶养年限</span><span>无则 0</span></label>
+              <div class="money-box">
+                <input id="trafficDependentYears" inputmode="decimal" value="0">
+                <span class="suffix">年</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="trafficDependentObligors"><span>扶养义务人数</span><span>至少 1</span></label>
+              <div class="money-box">
+                <input id="trafficDependentObligors" inputmode="decimal" value="1">
+                <span class="suffix">人</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <article class="panel metric">
+          <header>
+            <div>
+              <h3>交通事故赔偿明细</h3>
+              <p>先计算全部损失，再按责任比例折算应赔金额。多等级伤残、医保扣减、交强险分项限额需另行校正。</p>
+            </div>
+            <span class="badge">估算</span>
+          </header>
+          <strong class="amount blue" id="trafficPayable">¥0</strong>
+          <p id="trafficSummary">责任比例后应赔金额</p>
+          <div class="detail-list" id="trafficLines"></div>
+          <div class="result-meta" id="trafficMeta"></div>
+        </article>
+      </section>
     </section>
   </main>
 
@@ -894,7 +1289,9 @@
       attorneyEstimate,
       courtAcceptanceFee,
       courtPreservationFee,
-      insuranceEstimate
+      insuranceEstimate,
+      workInjuryEstimate,
+      trafficAccidentEstimate
     } = window.LegalExpenseCalculator;
 
     let preservationTouched = false;
@@ -934,6 +1331,30 @@
       const parts = raw.split(".");
       parts[0] = parts[0] ? Number(parts[0]).toLocaleString("zh-CN") : "";
       input.value = parts.length > 1 ? parts[0] + "." + parts[1].slice(0, 2) : parts[0];
+    }
+
+    function valueOf(id) {
+      const node = document.querySelector("#" + id);
+      return node ? parseAmount(node.value) : 0;
+    }
+
+    function selectValue(id) {
+      const node = document.querySelector("#" + id);
+      return node ? node.value : "";
+    }
+
+    function checked(id) {
+      const node = document.querySelector("#" + id);
+      return !!(node && node.checked);
+    }
+
+    function renderLines(container, lines) {
+      container.innerHTML = lines.map((item) => (
+        '<div class="detail-row">' +
+          '<span>' + item.label + (item.note ? '<small>' + item.note + '</small>' : '') + '</span>' +
+          '<strong>' + formatMoney(item.amount) + '</strong>' +
+        '</div>'
+      )).join("");
     }
 
     function render() {
@@ -976,6 +1397,57 @@
       el.insuranceHigh.textContent = formatMoney(insurance.high);
       el.midRateLabel.textContent = (midRate * 100).toFixed(3).replace(/0+$/, "").replace(/\.$/, "") + "%";
 
+    }
+
+    function renderWorkInjury() {
+      const result = workInjuryEstimate({
+        monthlyWage: valueOf("workMonthlyWage"),
+        grade: selectValue("workGrade"),
+        terminateEmployment: checked("workTerminate"),
+        medicalExpense: valueOf("workMedical"),
+        paidLeaveMonths: valueOf("workPaidMonths"),
+        hospitalDays: valueOf("workHospitalDays"),
+        nursingDays: valueOf("workNursingDays"),
+        nursingDailyRate: valueOf("workNursingRate"),
+        mealDailyRate: valueOf("workMealRate")
+      });
+
+      document.querySelector("#workTotal").textContent = formatMoney(result.oneTimeTotal);
+      document.querySelector("#workSummary").textContent = "一次性及已发生项目合计，伤残等级：" + result.grade + "级";
+      renderLines(document.querySelector("#workLines"), result.lines);
+      document.querySelector("#workMeta").innerHTML =
+        "<span>计发工资基数：" + formatMoney(result.wageBase) + "，深圳2024在岗职工月平均工资参考：" + formatMoney(result.averageMonthlyWage) + "</span>" +
+        (result.monthlyAllowance ? "<span>伤残津贴参考：" + formatMoney(result.monthlyAllowance) + "/月，未计入一次性合计。</span>" : "");
+    }
+
+    function renderTrafficAccident() {
+      const result = trafficAccidentEstimate({
+        injuryType: selectValue("trafficType"),
+        age: valueOf("trafficAge"),
+        disabilityGrade: selectValue("trafficGrade"),
+        liabilityPercent: valueOf("trafficLiability"),
+        medicalExpense: valueOf("trafficMedical"),
+        monthlyIncome: valueOf("trafficMonthlyIncome"),
+        lostWorkDays: valueOf("trafficLostDays"),
+        nursingDays: valueOf("trafficNursingDays"),
+        nursingDailyRate: valueOf("trafficNursingRate"),
+        hospitalDays: valueOf("trafficHospitalDays"),
+        mealDailyRate: valueOf("trafficMealRate"),
+        nutritionDays: valueOf("trafficNutritionDays"),
+        nutritionDailyRate: valueOf("trafficNutritionRate"),
+        transportExpense: valueOf("trafficTransport"),
+        propertyDamage: valueOf("trafficProperty"),
+        mentalDistress: valueOf("trafficMental"),
+        dependentYears: valueOf("trafficDependentYears"),
+        dependentObligors: valueOf("trafficDependentObligors")
+      });
+
+      document.querySelector("#trafficPayable").textContent = formatMoney(result.payableTotal);
+      document.querySelector("#trafficSummary").textContent = "全部损失 " + formatMoney(result.grossTotal) + " × 责任比例 " + Math.round(result.liabilityRate * 100) + "%";
+      renderLines(document.querySelector("#trafficLines"), result.lines);
+      document.querySelector("#trafficMeta").innerHTML =
+        "<span>深圳2025居民人均可支配收入：" + formatMoney(result.incomeStandard) + "；居民人均消费支出：" + formatMoney(result.consumptionStandard) + "。</span>" +
+        "<span>赔偿年限：" + result.compensationYears + "年；伤残赔偿系数：" + Math.round(result.disabilityCoefficient * 100) + "%。</span>";
     }
 
     function syncPreservationIfNeeded() {
@@ -1024,6 +1496,24 @@
 
     el.insuranceMidRate.addEventListener("input", render);
 
+    document.querySelectorAll("#workCalculator input, #workCalculator select").forEach((input) => {
+      input.addEventListener("input", renderWorkInjury);
+      input.addEventListener("change", renderWorkInjury);
+      input.addEventListener("blur", () => {
+        if (input.tagName === "INPUT" && input.type !== "checkbox") formatInput(input);
+        renderWorkInjury();
+      });
+    });
+
+    document.querySelectorAll("#trafficCalculator input, #trafficCalculator select").forEach((input) => {
+      input.addEventListener("input", renderTrafficAccident);
+      input.addEventListener("change", renderTrafficAccident);
+      input.addEventListener("blur", () => {
+        if (input.tagName === "INPUT") formatInput(input);
+        renderTrafficAccident();
+      });
+    });
+
     document.querySelectorAll("[data-amount]").forEach((button) => {
       button.addEventListener("click", () => {
         el.claim.value = Number(button.dataset.amount).toLocaleString("zh-CN");
@@ -1047,6 +1537,8 @@
     formatInput(el.claim);
     formatInput(el.preservation);
     render();
+    renderWorkInjury();
+    renderTrafficAccident();
   </script>
 </body>
 </html>
