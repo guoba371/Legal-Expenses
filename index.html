@@ -63,15 +63,12 @@
     }
 
     .masthead {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 390px;
-      gap: 20px;
-      align-items: end;
-      margin-bottom: 20px;
+      display: block;
+      margin-bottom: 18px;
     }
 
     .title-block {
-      min-height: 214px;
+      min-height: 180px;
       padding: 28px 4px 8px;
     }
 
@@ -132,6 +129,43 @@
       box-shadow: var(--shadow-soft);
       backdrop-filter: saturate(180%) blur(18px);
       -webkit-backdrop-filter: saturate(180%) blur(18px);
+    }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      margin: 0 0 20px;
+      border: 1px solid var(--separator-soft);
+      border-radius: var(--radius);
+      background: rgba(118, 118, 128, 0.12);
+    }
+
+    .mode-switch button {
+      min-height: 46px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--secondary);
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 650;
+      transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .mode-switch button[aria-selected="true"] {
+      background: var(--surface-strong);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .calculator-panel[hidden] {
+      display: none;
+    }
+
+    .litigation-summary {
+      margin-bottom: 20px;
     }
 
     .summary-panel {
@@ -692,7 +726,6 @@
     }
 
     @media (max-width: 920px) {
-      .masthead,
       .workspace {
         grid-template-columns: 1fr;
       }
@@ -719,6 +752,10 @@
       .masthead {
         gap: 14px;
         margin-bottom: 14px;
+      }
+
+      .mode-switch {
+        grid-template-columns: 1fr;
       }
 
       .title-block {
@@ -813,12 +850,25 @@
   <main class="page">
     <section class="masthead" aria-labelledby="page-title">
       <div class="title-block">
-        <div class="kicker"><span class="seal">深</span><span>一审民事财产案件费用预估</span></div>
-        <h1 id="page-title">深圳起诉费用计算器</h1>
-        <p class="subhead">输入起诉标的金额和申请保全金额，即时估算律师费参考区间、法院案件受理费、法院保全申请费和第三方保全保险费。</p>
+        <div class="kicker"><span class="seal">深</span><span>本地标准参考估算</span></div>
+        <h1 id="page-title">深圳法律费用与赔偿计算器</h1>
+        <p class="subhead">切换计算起诉费用、工伤赔偿和交通事故赔偿，输入关键金额后查看逐项明细和合计结果。</p>
+      </div>
+    </section>
+
+    <nav class="mode-switch" aria-label="计算类型" role="tablist">
+      <button type="button" role="tab" data-tab="litigation" aria-selected="true" aria-controls="panel-litigation">起诉费用</button>
+      <button type="button" role="tab" data-tab="work" aria-selected="false" aria-controls="panel-work">工伤赔偿</button>
+      <button type="button" role="tab" data-tab="traffic" aria-selected="false" aria-controls="panel-traffic">交通事故赔偿</button>
+    </nav>
+
+    <section class="calculator-section calculator-panel is-active" id="panel-litigation" data-panel="litigation" aria-labelledby="litigation-title" role="tabpanel">
+      <div class="section-intro">
+        <h2 id="litigation-title">深圳起诉费用计算</h2>
+        <p>输入起诉标的金额和申请保全金额，即时估算律师费参考区间、法院案件受理费、法院保全申请费和第三方保全保险费。</p>
       </div>
 
-      <aside class="summary-panel" aria-label="合计预估">
+      <aside class="summary-panel litigation-summary" aria-label="起诉费用合计预估">
         <p class="summary-label">中位口径合计预估</p>
         <div class="total">
           <span>律师费中位 + 法院费用 + 保险费中位</span>
@@ -837,10 +887,9 @@
           <strong id="courtSubtotal">¥0</strong>
         </div>
       </aside>
-    </section>
 
-    <section class="workspace">
-      <form class="panel inputs" id="calculator" autocomplete="off">
+      <section class="workspace">
+        <form class="panel inputs" id="calculator" autocomplete="off">
         <div class="section-title">
           <h2>计算输入</h2>
           <span class="tag">人民币</span>
@@ -977,8 +1026,9 @@
         </section>
       </div>
     </section>
+    </section>
 
-    <section class="calculator-section" aria-labelledby="work-title">
+    <section class="calculator-section calculator-panel" id="panel-work" data-panel="work" aria-labelledby="work-title" role="tabpanel" hidden>
       <div class="section-intro">
         <h2 id="work-title">深圳工伤赔偿计算</h2>
         <p>按伤残等级、本人工资、是否解除或终止劳动关系，估算一次性伤残补助金、一次性工伤医疗补助金、一次性伤残就业补助金及常见已发生费用。</p>
@@ -1081,7 +1131,7 @@
       </section>
     </section>
 
-    <section class="calculator-section" aria-labelledby="traffic-title">
+    <section class="calculator-section calculator-panel" id="panel-traffic" data-panel="traffic" aria-labelledby="traffic-title" role="tabpanel" hidden>
       <div class="section-intro">
         <h2 id="traffic-title">深圳交通事故赔偿计算</h2>
         <p>按深圳 2025 年居民收入和消费支出标准，估算医疗费、误工费、护理费、残疾赔偿金或死亡赔偿金等明细，并按责任比例折算应赔金额。</p>
@@ -1481,6 +1531,21 @@
       showToast.timer = window.setTimeout(() => el.toast.classList.remove("show"), 1500);
     }
 
+    function setActivePanel(name) {
+      document.querySelectorAll("[data-panel]").forEach((panel) => {
+        const isActive = panel.dataset.panel === name;
+        panel.hidden = !isActive;
+        panel.classList.toggle("is-active", isActive);
+      });
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.setAttribute("aria-selected", String(button.dataset.tab === name));
+      });
+    }
+
+    document.querySelectorAll("[data-tab]").forEach((button) => {
+      button.addEventListener("click", () => setActivePanel(button.dataset.tab));
+    });
+
     [el.claim, el.preservation].forEach((input) => {
       input.addEventListener("input", () => {
         if (input === el.preservation) preservationTouched = true;
@@ -1536,6 +1601,7 @@
 
     formatInput(el.claim);
     formatInput(el.preservation);
+    setActivePanel("litigation");
     render();
     renderWorkInjury();
     renderTrafficAccident();
