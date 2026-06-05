@@ -5,7 +5,9 @@ const {
   attorneyEstimate,
   courtAcceptanceFee,
   courtPreservationFee,
-  insuranceEstimate
+  insuranceEstimate,
+  workInjuryEstimate,
+  trafficAccidentEstimate
 } = require("./calculator.js");
 
 test("estimates the default 1,000,000 yuan Shenzhen litigation costs", () => {
@@ -26,4 +28,59 @@ test("handles lower statutory thresholds", () => {
   assert.equal(courtAcceptanceFee(10_000), 50);
   assert.equal(courtPreservationFee(1_000), 30);
   assert.equal(courtPreservationFee(100_000), 1_020);
+});
+
+test("estimates Shenzhen work injury disability compensation with itemized lines", () => {
+  const result = workInjuryEstimate({
+    monthlyWage: 12_000,
+    grade: 10,
+    terminateEmployment: true,
+    medicalExpense: 8_000,
+    paidLeaveMonths: 3,
+    hospitalDays: 10,
+    nursingDays: 10,
+    nursingDailyRate: 200,
+    mealDailyRate: 100
+  });
+
+  assert.equal(result.wageBase, 12_000);
+  assert.deepEqual(result.lines.map((line) => [line.key, line.amount]), [
+    ["medicalExpense", 8_000],
+    ["paidLeaveWage", 36_000],
+    ["hospitalMeal", 1_000],
+    ["nursingFee", 2_000],
+    ["oneTimeDisabilitySubsidy", 84_000],
+    ["oneTimeMedicalSubsidy", 12_000],
+    ["oneTimeEmploymentSubsidy", 48_000]
+  ]);
+  assert.equal(result.oneTimeTotal, 191_000);
+});
+
+test("estimates Shenzhen traffic accident disability compensation after liability split", () => {
+  const result = trafficAccidentEstimate({
+    injuryType: "disability",
+    age: 35,
+    disabilityGrade: 10,
+    liabilityPercent: 70,
+    medicalExpense: 20_000,
+    monthlyIncome: 15_000,
+    lostWorkDays: 60,
+    nursingDays: 30,
+    nursingDailyRate: 200,
+    hospitalDays: 15,
+    mealDailyRate: 100,
+    nutritionDays: 30,
+    nutritionDailyRate: 50,
+    transportExpense: 1_000,
+    propertyDamage: 3_000,
+    mentalDistress: 10_000,
+    dependentYears: 0,
+    dependentObligors: 1
+  });
+
+  assert.equal(result.compensationYears, 20);
+  assert.equal(result.disabilityCoefficient, 0.1);
+  assert.equal(result.lines.find((line) => line.key === "disabilityCompensation").amount, 169_890);
+  assert.equal(result.grossTotal, 242_890);
+  assert.equal(result.payableTotal, 170_023);
 });
