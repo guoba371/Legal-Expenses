@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>深圳起诉费用计算器</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f5f7;
+      --surface: rgba(255, 255, 255, 0.86);
+      --surface-strong: #fbfbfd;
+      --text: #1d1d1f;
+      --secondary: #515154;
+      --tertiary: #6e6e73;
+      --separator: rgba(60, 60, 67, 0.18);
+      --separator-soft: rgba(60, 60, 67, 0.1);
+      --blue: #006edb;
+      --blue-pressed: #0057b8;
+      --button-text: #f5faff;
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.08);
+      --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.05);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(0, 110, 219, 0.34);
+      outline-offset: 3px;
+    }
+
+    .page {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: max(24px, env(safe-area-inset-top)) 20px 52px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    .title-block {
+      min-height: 214px;
+      padding: 28px 4px 8px;
+    }
+
+    .title-block::after {
+      content: none;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      margin-bottom: 22px;
+      color: var(--secondary);
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .seal {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--separator);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .subhead {
+      max-width: 680px;
+      margin: 18px 0 0;
+      color: var(--secondary);
+      font-size: 17px;
+      line-height: 1.58;
+      font-weight: 400;
+    }
+
+    .summary-panel,
+    .panel,
+    .formula {
+      background: var(--surface);
+      border: 1px solid var(--separator-soft);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: saturate(180%) blur(18px);
+      -webkit-backdrop-filter: saturate(180%) blur(18px);
+    }
+
+    .summary-panel {
+      padding: 20px;
+      display: grid;
+      gap: 2px;
+      align-content: start;
+    }
+
+    .summary-label {
+      margin: 0 0 4px;
+      color: var(--secondary);
+      font-size: 13px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .total {
+      display: grid;
+      gap: 8px;
+      padding: 0 0 18px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--separator-soft);
+      color: var(--text);
+    }
+
+    .total span {
+      color: var(--tertiary);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .total strong {
+      color: var(--blue);
+      font-size: clamp(34px, 7vw, 52px);
+      line-height: 1;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: baseline;
+      min-height: 44px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--separator-soft);
+    }
+
+    .range-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .range-row span {
+      color: var(--secondary);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .range-row strong {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .inputs {
+      position: sticky;
+      top: 20px;
+      padding: 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .section-title h2,
+    .formula h2,
+    .notes h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .tag,
+    .badge {
+      flex: 0 0 auto;
+      min-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(0, 110, 219, 0.08);
+      color: var(--blue);
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .field label span:last-child {
+      color: var(--tertiary);
+      font-size: 12px;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .field small {
+      color: var(--secondary);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .money-box,
+    .rate-box {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 52px;
+      padding: 0 14px;
+      border: 1px solid var(--separator);
+      border-radius: var(--radius);
+      background: var(--surface-strong);
+      transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }
+
+    .rate-box {
+      grid-template-columns: 1fr auto;
+    }
+
+    .money-box:focus-within,
+    .rate-box:focus-within {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(0, 110, 219, 0.12);
+    }
+
+    .prefix,
+    .suffix {
+      color: var(--secondary);
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 21px;
+      line-height: 1.25;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 2px 0 18px;
+    }
+
+    .quick-grid button,
+    .action {
+      min-height: 44px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
+    }
+
+    .quick-grid button {
+      border: 1px solid transparent;
+      background: rgba(118, 118, 128, 0.12);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .quick-grid button:hover,
+    .quick-grid button:focus-visible {
+      background: rgba(0, 110, 219, 0.1);
+      color: var(--blue);
+    }
+
+    .quick-grid button:active,
+    .action:active {
+      transform: scale(0.985);
+    }
+
+    .copy-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .action {
+      border: 0;
+      background: var(--blue);
+      color: var(--button-text);
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .action.secondary {
+      background: rgba(118, 118, 128, 0.12);
+      color: var(--text);
+    }
+
+    .action:hover {
+      background: var(--blue-pressed);
+    }
+
+    .action.secondary:hover {
+      background: rgba(118, 118, 128, 0.18);
+    }
+
+    .results {
+      display: grid;
+      gap: 16px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric {
+      min-height: 236px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .metric header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.35;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .metric p {
+      margin: 4px 0 0;
+      color: var(--secondary);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .amount {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: clamp(27px, 4vw, 38px);
+      line-height: 1.05;
+      font-weight: 750;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .amount.green {
+      color: var(--text);
+    }
+
+    .amount.red {
+      color: var(--text);
+    }
+
+    .amount.blue {
+      color: var(--text);
+    }
+
+    .bands {
+      display: grid;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .band {
+      display: grid;
+      grid-template-columns: minmax(44px, auto) 1fr;
+      gap: 16px;
+      align-items: center;
+      min-height: 26px;
+      color: var(--secondary);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .band strong {
+      color: var(--text);
+      font-weight: 600;
+      justify-self: end;
+      white-space: nowrap;
+    }
+
+    .formula {
+      padding: 20px;
+    }
+
+    .formula dl {
+      display: grid;
+      grid-template-columns: minmax(112px, 0.34fr) 1fr;
+      gap: 12px 18px;
+      margin: 16px 0 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .formula dt {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .formula dd {
+      margin: 0;
+      color: var(--secondary);
+    }
+
+    .notes {
+      padding: 20px;
+      background: transparent;
+      border-color: var(--separator-soft);
+      box-shadow: none;
+    }
+
+    .notes ul {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--secondary);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .notes a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .toast {
+      position: fixed;
+      right: max(18px, env(safe-area-inset-right));
+      bottom: max(18px, env(safe-area-inset-bottom));
+      transform: translateY(16px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 15px;
+      border-radius: var(--radius);
+      background: rgba(29, 29, 31, 0.92);
+      color: var(--button-text);
+      box-shadow: var(--shadow);
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 5;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #101012;
+        --surface: rgba(28, 28, 30, 0.82);
+        --surface-strong: #1c1c1e;
+        --text: #f5f5f7;
+        --secondary: #c7c7cc;
+        --tertiary: #aeaeb2;
+        --separator: rgba(235, 235, 245, 0.18);
+        --separator-soft: rgba(235, 235, 245, 0.1);
+        --blue: #4da3ff;
+        --blue-pressed: #7bbcff;
+        --button-text: #061526;
+        --shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+        --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.22);
+      }
+
+      .seal {
+        background: rgba(44, 44, 46, 0.72);
+      }
+
+      .action.secondary,
+      .quick-grid button {
+        background: rgba(118, 118, 128, 0.24);
+      }
+
+      .action.secondary:hover {
+        background: rgba(118, 118, 128, 0.32);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .masthead,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .title-block {
+        min-height: auto;
+        padding-top: 18px;
+      }
+
+      .inputs {
+        position: static;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        padding: max(16px, env(safe-area-inset-top)) 12px 28px;
+      }
+
+      .masthead {
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .title-block {
+        padding: 12px 2px 2px;
+      }
+
+      .kicker {
+        margin-bottom: 16px;
+        font-size: 13px;
+      }
+
+      h1 {
+        font-size: clamp(36px, 12vw, 46px);
+      }
+
+      .subhead {
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .summary-panel,
+      .inputs,
+      .metric,
+      .formula,
+      .notes {
+        padding: 16px;
+      }
+
+      .total strong {
+        font-size: clamp(34px, 12vw, 46px);
+      }
+
+      .quick-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .copy-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .field label {
+        display: grid;
+        gap: 2px;
+      }
+
+      .field label span:last-child {
+        text-align: left;
+      }
+
+      .range-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        min-height: 0;
+      }
+
+      .range-row strong {
+        white-space: normal;
+      }
+
+      .metric {
+        min-height: 0;
+      }
+
+      .metric header {
+        display: grid;
+      }
+
+      .badge {
+        justify-self: start;
+      }
+
+      .band {
+        grid-template-columns: 44px 1fr;
+      }
+
+      .band strong {
+        white-space: normal;
+      }
+
+      .formula dl {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="masthead" aria-labelledby="page-title">
+      <div class="title-block">
+        <div class="kicker"><span class="seal">深</span><span>一审民事财产案件费用预估</span></div>
+        <h1 id="page-title">深圳起诉费用计算器</h1>
+        <p class="subhead">输入起诉标的金额和申请保全金额，即时估算律师费参考区间、法院案件受理费、法院保全申请费和第三方保全保险费。</p>
+      </div>
+
+      <aside class="summary-panel" aria-label="合计预估">
+        <p class="summary-label">中位口径合计预估</p>
+        <div class="total">
+          <span>律师费中位 + 法院费用 + 保险费中位</span>
+          <strong id="grandTotal">¥0</strong>
+        </div>
+        <div class="range-row">
+          <span>低位合计</span>
+          <strong id="totalLow">¥0</strong>
+        </div>
+        <div class="range-row">
+          <span>高位合计</span>
+          <strong id="totalHigh">¥0</strong>
+        </div>
+        <div class="range-row">
+          <span>法院固定口径小计</span>
+          <strong id="courtSubtotal">¥0</strong>
+        </div>
+      </aside>
+    </section>
+
+    <section class="workspace">
+      <form class="panel inputs" id="calculator" autocomplete="off">
+        <div class="section-title">
+          <h2>计算输入</h2>
+          <span class="tag">人民币</span>
+        </div>
+
+        <div class="field">
+          <label for="claimAmount"><span>起诉标的金额</span><span>用于律师费、诉讼费</span></label>
+          <div class="money-box">
+            <span class="prefix">¥</span>
+            <input id="claimAmount" inputmode="decimal" value="1000000" aria-describedby="claimHelp">
+            <span class="suffix">元</span>
+          </div>
+          <small id="claimHelp">首版仅覆盖深圳一审民事财产案件；非财产案件、二审、执行和减半规则未纳入。</small>
+        </div>
+
+        <div class="quick-grid" aria-label="快速金额">
+          <button type="button" data-amount="100000">10万</button>
+          <button type="button" data-amount="500000">50万</button>
+          <button type="button" data-amount="1000000">100万</button>
+          <button type="button" data-amount="5000000">500万</button>
+        </div>
+
+        <div class="field">
+          <label for="preservationAmount"><span>申请保全金额</span><span>可低于标的金额</span></label>
+          <div class="money-box">
+            <span class="prefix">¥</span>
+            <input id="preservationAmount" inputmode="decimal" value="1000000" aria-describedby="preservationHelp">
+            <span class="suffix">元</span>
+          </div>
+          <small id="preservationHelp">不申请财产保全可填 0。法院保全申请费和第三方保全保险费都按此金额估算。</small>
+        </div>
+
+        <div class="field">
+          <label for="insuranceMidRate"><span>保险费中位费率</span><span>默认 0.3%</span></label>
+          <div class="rate-box">
+            <input id="insuranceMidRate" inputmode="decimal" value="0.3" aria-describedby="rateHelp">
+            <span class="suffix">%</span>
+          </div>
+          <small id="rateHelp">低位按 0.1%，高位按 0.5%；中位费率可按保险公司或担保公司报价调整。</small>
+        </div>
+
+        <div class="copy-actions">
+          <button class="action" type="button" id="copyResult">复制结果</button>
+          <button class="action secondary" type="reset">重置</button>
+        </div>
+      </form>
+
+      <div class="results">
+        <div class="result-grid">
+          <article class="panel metric">
+            <header>
+              <div>
+                <h3>律师费参考估算</h3>
+                <p>旧广东政府指导价分段累加，仅作深圳市场报价参考。</p>
+              </div>
+              <span class="badge">参考区间</span>
+            </header>
+            <strong class="amount green" id="attorneyMid">¥0</strong>
+            <p id="attorneyRange">区间：¥0 - ¥0</p>
+            <div class="bands">
+              <div class="band"><span>低位</span><strong id="attorneyLow">¥0</strong></div>
+              <div class="band"><span>中位</span><strong id="attorneyMidSmall">¥0</strong></div>
+              <div class="band"><span>高位</span><strong id="attorneyHigh">¥0</strong></div>
+            </div>
+          </article>
+
+          <article class="panel metric">
+            <header>
+              <div>
+                <h3>法院案件受理费</h3>
+                <p>按财产案件诉讼请求金额分段累计计算。</p>
+              </div>
+              <span class="badge">法院费用</span>
+            </header>
+            <strong class="amount red" id="courtAcceptance">¥0</strong>
+            <p>由原告预交，最终负担以法院裁判或调解安排为准。</p>
+          </article>
+
+          <article class="panel metric">
+            <header>
+              <div>
+                <h3>法院保全申请费</h3>
+                <p>按实际保全财产数额计算，最高不超过 5000 元。</p>
+              </div>
+              <span class="badge">法院费用</span>
+            </header>
+            <strong class="amount blue" id="courtPreservation">¥0</strong>
+            <p>这是法院收取的申请费，不包含保险、保函或担保公司费用。</p>
+          </article>
+
+          <article class="panel metric">
+            <header>
+              <div>
+                <h3>第三方保全保险费</h3>
+                <p>按保全金额的市场费率区间估算。</p>
+              </div>
+              <span class="badge">市场参考</span>
+            </header>
+            <strong class="amount green" id="insuranceMid">¥0</strong>
+            <p id="insuranceRange">区间：¥0 - ¥0</p>
+            <div class="bands">
+              <div class="band"><span>0.1%</span><strong id="insuranceLow">¥0</strong></div>
+              <div class="band"><span id="midRateLabel">0.3%</span><strong id="insuranceMidSmall">¥0</strong></div>
+              <div class="band"><span>0.5%</span><strong id="insuranceHigh">¥0</strong></div>
+            </div>
+          </article>
+        </div>
+
+        <section class="formula">
+          <h2>当前公式口径</h2>
+          <dl>
+            <dt>律师费</dt>
+            <dd>基础费用 1000-8000 元 + 争议标的额分段比例累加；主结果用 4500 元基础费和 100% 比例费。</dd>
+            <dt>案件受理费</dt>
+            <dd>不超过 1 万元按 50 元；超过部分按 2.5%、2%、1.5%、1%、0.9%、0.8%、0.7%、0.6%、0.5% 分段累计。</dd>
+            <dt>法院保全申请费</dt>
+            <dd>1000 元以内按 30 元；超过 1000 元至 10 万元部分按 1%；超过 10 万元部分按 0.5%；最高 5000 元。</dd>
+            <dt>第三方保险费</dt>
+            <dd>默认低位 0.1%、中位可编辑、高位 0.5%，实际以保险公司、担保公司报价及法院接受的担保方式为准。</dd>
+          </dl>
+        </section>
+
+        <section class="panel notes">
+          <h2>重要说明</h2>
+          <ul>
+            <li>深圳律师服务收费现行按市场调节，律师费结果不是法定固定价格，实际以律所报价或委托合同为准。</li>
+            <li>本工具仅估算一审民事财产案件常见前期费用，不包含公告、鉴定、评估、翻译、差旅、执行、上诉、反诉、调解结案或简易程序减半等费用变化。</li>
+            <li>法院费用公式参考福田法院转载的《诉讼费用交纳办法》；律师费参考旧《广东省律师服务政府指导价》；第三方保险费为市场区间估算。</li>
+            <li>资料来源：<a href="https://sf.sz.gov.cn/xxgk/xxgkml/zcfg/content/post_2980094.html" target="_blank" rel="noreferrer">深圳市司法局</a>、<a href="https://www.ftcourt.gov.cn/ssfw/sszn/content/post_1424806.html" target="_blank" rel="noreferrer">深圳市福田区人民法院</a>。</li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+
+  <script src="calculator.js"></script>
+  <script>
+    const el = {
+      claim: document.querySelector("#claimAmount"),
+      preservation: document.querySelector("#preservationAmount"),
+      insuranceMidRate: document.querySelector("#insuranceMidRate"),
+      grandTotal: document.querySelector("#grandTotal"),
+      totalLow: document.querySelector("#totalLow"),
+      totalHigh: document.querySelector("#totalHigh"),
+      courtSubtotal: document.querySelector("#courtSubtotal"),
+      attorneyMid: document.querySelector("#attorneyMid"),
+      attorneyRange: document.querySelector("#attorneyRange"),
+      attorneyLow: document.querySelector("#attorneyLow"),
+      attorneyMidSmall: document.querySelector("#attorneyMidSmall"),
+      attorneyHigh: document.querySelector("#attorneyHigh"),
+      courtAcceptance: document.querySelector("#courtAcceptance"),
+      courtPreservation: document.querySelector("#courtPreservation"),
+      insuranceMid: document.querySelector("#insuranceMid"),
+      insuranceRange: document.querySelector("#insuranceRange"),
+      insuranceLow: document.querySelector("#insuranceLow"),
+      insuranceMidSmall: document.querySelector("#insuranceMidSmall"),
+      insuranceHigh: document.querySelector("#insuranceHigh"),
+      midRateLabel: document.querySelector("#midRateLabel"),
+      copyResult: document.querySelector("#copyResult"),
+      form: document.querySelector("#calculator"),
+      toast: document.querySelector("#toast")
+    };
+    const {
+      attorneyEstimate,
+      courtAcceptanceFee,
+      courtPreservationFee,
+      insuranceEstimate
+    } = window.LegalExpenseCalculator;
+
+    let preservationTouched = false;
+    let lastResult = null;
+
+    function cleanNumber(value) {
+      const normalized = String(value).replace(/,/g, "").replace(/[^\d.]/g, "");
+      const firstDot = normalized.indexOf(".");
+      if (firstDot === -1) return normalized;
+      return normalized.slice(0, firstDot + 1) + normalized.slice(firstDot + 1).replace(/\./g, "");
+    }
+
+    function parseAmount(value) {
+      const number = Number(cleanNumber(value));
+      return Number.isFinite(number) && number > 0 ? number : 0;
+    }
+
+    function parseRate(value, fallback) {
+      const number = Number(cleanNumber(value));
+      return Number.isFinite(number) && number >= 0 ? number / 100 : fallback;
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("zh-CN", {
+        style: "currency",
+        currency: "CNY",
+        maximumFractionDigits: 0
+      }).format(Math.round(value));
+    }
+
+    function formatInput(input) {
+      const raw = cleanNumber(input.value);
+      if (!raw) {
+        input.value = "";
+        return;
+      }
+      const parts = raw.split(".");
+      parts[0] = parts[0] ? Number(parts[0]).toLocaleString("zh-CN") : "";
+      input.value = parts.length > 1 ? parts[0] + "." + parts[1].slice(0, 2) : parts[0];
+    }
+
+    function render() {
+      const claimAmount = parseAmount(el.claim.value);
+      const preservationAmount = parseAmount(el.preservation.value);
+      const midRate = parseRate(el.insuranceMidRate.value, 0.003);
+
+      const attorney = attorneyEstimate(claimAmount);
+      const acceptance = courtAcceptanceFee(claimAmount);
+      const preservation = courtPreservationFee(preservationAmount);
+      const insurance = insuranceEstimate(preservationAmount, midRate);
+      const courtTotal = acceptance + preservation;
+
+      const totals = {
+        low: attorney.low + acceptance + preservation + insurance.low,
+        mid: attorney.mid + acceptance + preservation + insurance.mid,
+        high: attorney.high + acceptance + preservation + insurance.high
+      };
+
+      lastResult = { claimAmount, preservationAmount, midRate, attorney, acceptance, preservation, insurance, courtTotal, totals };
+
+      el.grandTotal.textContent = formatMoney(totals.mid);
+      el.totalLow.textContent = formatMoney(totals.low);
+      el.totalHigh.textContent = formatMoney(totals.high);
+      el.courtSubtotal.textContent = formatMoney(courtTotal);
+
+      el.attorneyMid.textContent = formatMoney(attorney.mid);
+      el.attorneyRange.textContent = "区间：" + formatMoney(attorney.low) + " - " + formatMoney(attorney.high);
+      el.attorneyLow.textContent = formatMoney(attorney.low);
+      el.attorneyMidSmall.textContent = formatMoney(attorney.mid);
+      el.attorneyHigh.textContent = formatMoney(attorney.high);
+
+      el.courtAcceptance.textContent = formatMoney(acceptance);
+      el.courtPreservation.textContent = formatMoney(preservation);
+
+      el.insuranceMid.textContent = formatMoney(insurance.mid);
+      el.insuranceRange.textContent = "区间：" + formatMoney(insurance.low) + " - " + formatMoney(insurance.high);
+      el.insuranceLow.textContent = formatMoney(insurance.low);
+      el.insuranceMidSmall.textContent = formatMoney(insurance.mid);
+      el.insuranceHigh.textContent = formatMoney(insurance.high);
+      el.midRateLabel.textContent = (midRate * 100).toFixed(3).replace(/0+$/, "").replace(/\.$/, "") + "%";
+
+    }
+
+    function syncPreservationIfNeeded() {
+      if (!preservationTouched) {
+        el.preservation.value = el.claim.value;
+      }
+    }
+
+    function copySummary() {
+      if (!lastResult) return;
+      const lines = [
+        "深圳起诉费用预估",
+        "起诉标的金额：" + formatMoney(lastResult.claimAmount),
+        "申请保全金额：" + formatMoney(lastResult.preservationAmount),
+        "律师费参考区间：" + formatMoney(lastResult.attorney.low) + " - " + formatMoney(lastResult.attorney.high) + "，中位 " + formatMoney(lastResult.attorney.mid),
+        "法院案件受理费：" + formatMoney(lastResult.acceptance),
+        "法院保全申请费：" + formatMoney(lastResult.preservation),
+        "第三方保全保险费参考区间：" + formatMoney(lastResult.insurance.low) + " - " + formatMoney(lastResult.insurance.high) + "，中位 " + formatMoney(lastResult.insurance.mid),
+        "中位口径合计：" + formatMoney(lastResult.totals.mid),
+        "说明：律师费和第三方保险费为参考估算，实际以律所、保险公司或担保公司报价及委托合同为准。"
+      ];
+      navigator.clipboard.writeText(lines.join("\n")).then(showToast).catch(() => {
+        showToast("浏览器未允许复制");
+      });
+    }
+
+    function showToast(message = "已复制") {
+      el.toast.textContent = message;
+      el.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => el.toast.classList.remove("show"), 1500);
+    }
+
+    [el.claim, el.preservation].forEach((input) => {
+      input.addEventListener("input", () => {
+        if (input === el.preservation) preservationTouched = true;
+        if (input === el.claim) syncPreservationIfNeeded();
+        render();
+      });
+      input.addEventListener("blur", () => {
+        formatInput(input);
+        if (input === el.claim) syncPreservationIfNeeded();
+        render();
+      });
+    });
+
+    el.insuranceMidRate.addEventListener("input", render);
+
+    document.querySelectorAll("[data-amount]").forEach((button) => {
+      button.addEventListener("click", () => {
+        el.claim.value = Number(button.dataset.amount).toLocaleString("zh-CN");
+        syncPreservationIfNeeded();
+        render();
+      });
+    });
+
+    el.copyResult.addEventListener("click", copySummary);
+
+    el.form.addEventListener("reset", () => {
+      preservationTouched = false;
+      window.setTimeout(() => {
+        el.claim.value = "1,000,000";
+        el.preservation.value = "1,000,000";
+        el.insuranceMidRate.value = "0.3";
+        render();
+      });
+    });
+
+    formatInput(el.claim);
+    formatInput(el.preservation);
+    render();
+  </script>
+</body>
+</html>
