@@ -7,7 +7,8 @@ const {
   courtPreservationFee,
   insuranceEstimate,
   workInjuryEstimate,
-  trafficAccidentEstimate
+  trafficAccidentEstimate,
+  buildExcelWorkbook
 } = require("./calculator.js");
 
 test("estimates the default 1,000,000 yuan Shenzhen litigation costs", () => {
@@ -83,4 +84,21 @@ test("estimates Shenzhen traffic accident disability compensation after liabilit
   assert.equal(result.lines.find((line) => line.key === "disabilityCompensation").amount, 169_890);
   assert.equal(result.grossTotal, 242_890);
   assert.equal(result.payableTotal, 170_023);
+});
+
+test("builds an Excel workbook html document with escaped table cells", () => {
+  const workbook = buildExcelWorkbook([
+    {
+      title: "起诉费用",
+      rows: [
+        ["项目", "金额", "说明"],
+        ["中位口径合计", 70300, "律师费 < 法院费 & 保险费"]
+      ]
+    }
+  ]);
+
+  assert.match(workbook, /<html[^>]*xmlns:o="urn:schemas-microsoft-com:office:office"/);
+  assert.match(workbook, /<h2>起诉费用<\/h2>/);
+  assert.match(workbook, /<td>70300<\/td>/);
+  assert.match(workbook, /律师费 &lt; 法院费 &amp; 保险费/);
 });

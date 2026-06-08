@@ -67,6 +67,11 @@
       margin-bottom: 18px;
     }
 
+    .masthead-actions {
+      width: min(220px, 100%);
+      margin-top: 18px;
+    }
+
     .title-block {
       min-height: 180px;
       padding: 28px 4px 8px;
@@ -853,6 +858,9 @@
         <div class="kicker"><span class="seal">深</span><span>本地标准参考估算</span></div>
         <h1 id="page-title">深圳法律费用与赔偿计算器</h1>
         <p class="subhead">切换计算起诉费用、工伤赔偿和交通事故赔偿，输入关键金额后查看逐项明细和合计结果。</p>
+        <div class="masthead-actions">
+          <button class="action" type="button" id="exportExcel">导出 Excel</button>
+        </div>
       </div>
     </section>
 
@@ -1332,6 +1340,7 @@
       insuranceHigh: document.querySelector("#insuranceHigh"),
       midRateLabel: document.querySelector("#midRateLabel"),
       copyResult: document.querySelector("#copyResult"),
+      exportExcel: document.querySelector("#exportExcel"),
       form: document.querySelector("#calculator"),
       toast: document.querySelector("#toast")
     };
@@ -1341,11 +1350,14 @@
       courtPreservationFee,
       insuranceEstimate,
       workInjuryEstimate,
-      trafficAccidentEstimate
+      trafficAccidentEstimate,
+      buildExcelWorkbook
     } = window.LegalExpenseCalculator;
 
     let preservationTouched = false;
     let lastResult = null;
+    let lastWorkResult = null;
+    let lastTrafficResult = null;
 
     function cleanNumber(value) {
       const normalized = String(value).replace(/,/g, "").replace(/[^\d.]/g, "");
@@ -1396,6 +1408,11 @@
     function checked(id) {
       const node = document.querySelector("#" + id);
       return !!(node && node.checked);
+    }
+
+    function optionText(id) {
+      const node = document.querySelector("#" + id);
+      return node && node.selectedOptions.length ? node.selectedOptions[0].textContent : "";
     }
 
     function renderLines(container, lines) {
@@ -1468,6 +1485,8 @@
       document.querySelector("#workMeta").innerHTML =
         "<span>计发工资基数：" + formatMoney(result.wageBase) + "，深圳2024在岗职工月平均工资参考：" + formatMoney(result.averageMonthlyWage) + "</span>" +
         (result.monthlyAllowance ? "<span>伤残津贴参考：" + formatMoney(result.monthlyAllowance) + "/月，未计入一次性合计。</span>" : "");
+      lastWorkResult = result;
+      return result;
     }
 
     function renderTrafficAccident() {
@@ -1498,6 +1517,8 @@
       document.querySelector("#trafficMeta").innerHTML =
         "<span>深圳2025居民人均可支配收入：" + formatMoney(result.incomeStandard) + "；居民人均消费支出：" + formatMoney(result.consumptionStandard) + "。</span>" +
         "<span>赔偿年限：" + result.compensationYears + "年；伤残赔偿系数：" + Math.round(result.disabilityCoefficient * 100) + "%。</span>";
+      lastTrafficResult = result;
+      return result;
     }
 
     function syncPreservationIfNeeded() {
@@ -1522,6 +1543,72 @@
       navigator.clipboard.writeText(lines.join("\n")).then(showToast).catch(() => {
         showToast("浏览器未允许复制");
       });
+    }
+
+    function exportExcel() {
+      render();
+      const workResult = renderWorkInjury();
+      const trafficResult = renderTrafficAccident();
+
+      const litigationRows = [
+        ["项目", "金额", "说明"],
+        ["起诉标的金额", lastResult.claimAmount, "输入"],
+        ["申请保全金额", lastResult.preservationAmount, "输入"],
+        ["律师费低位", lastResult.attorney.low, "参考区间"],
+        ["律师费中位", lastResult.attorney.mid, "参考区间"],
+        ["律师费高位", lastResult.attorney.high, "参考区间"],
+        ["法院案件受理费", lastResult.acceptance, "法院费用"],
+        ["法院保全申请费", lastResult.preservation, "法院费用"],
+        ["第三方保全保险费低位", lastResult.insurance.low, "0.1%"],
+        ["第三方保全保险费中位", lastResult.insurance.mid, (lastResult.midRate * 100).toFixed(3).replace(/0+$/, "").replace(/\.$/, "") + "%"],
+        ["第三方保全保险费高位", lastResult.insurance.high, "0.5%"],
+        ["低位合计", lastResult.totals.low, "律师费低位 + 法院费用 + 保险费低位"],
+        ["中位口径合计", lastResult.totals.mid, "律师费中位 + 法院费用 + 保险费中位"],
+        ["高位合计", lastResult.totals.high, "律师费高位 + 法院费用 + 保险费高位"]
+      ];
+
+      const workRows = [
+        ["项目", "金额", "说明"],
+        ["本人月工资", valueOf("workMonthlyWage"), "输入"],
+        ["伤残等级", optionText("workGrade"), "输入"],
+        ["是否解除或终止劳动关系", checked("workTerminate") ? "是" : "否", "输入"],
+        ["计发工资基数", workResult.wageBase, "按深圳2024在岗职工月平均工资上下限校正"],
+        ["深圳2024在岗职工月平均工资", workResult.averageMonthlyWage, "参考标准"],
+        ...workResult.lines.map((item) => [item.label, item.amount, item.note || ""]),
+        ["一次性及已发生项目合计", workResult.oneTimeTotal, "合计"],
+        ["伤残津贴参考", workResult.monthlyAllowance || 0, workResult.monthlyAllowance ? "未计入一次性合计" : "不适用"]
+      ];
+
+      const trafficRows = [
+        ["项目", "金额", "说明"],
+        ["损害类型", optionText("trafficType"), "输入"],
+        ["受害人年龄", valueOf("trafficAge"), "输入"],
+        ["伤残等级", optionText("trafficGrade"), "输入"],
+        ["责任比例", Math.round(trafficResult.liabilityRate * 100) + "%", "输入"],
+        ["赔偿年限", trafficResult.compensationYears, "估算"],
+        ["伤残赔偿系数", Math.round(trafficResult.disabilityCoefficient * 100) + "%", "估算"],
+        ["深圳2025居民人均可支配收入", trafficResult.incomeStandard, "参考标准"],
+        ["深圳2025居民人均消费支出", trafficResult.consumptionStandard, "参考标准"],
+        ...trafficResult.lines.map((item) => [item.label, item.amount, item.note || ""]),
+        ["全部损失合计", trafficResult.grossTotal, "责任比例折算前"],
+        ["责任比例后应赔金额", trafficResult.payableTotal, "合计"]
+      ];
+
+      const workbook = buildExcelWorkbook([
+        { title: "起诉费用", rows: litigationRows },
+        { title: "工伤赔偿", rows: workRows },
+        { title: "交通事故赔偿", rows: trafficRows }
+      ]);
+      const blob = new Blob(["\ufeff", workbook], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "深圳法律费用赔偿估算-" + new Date().toISOString().slice(0, 10) + ".xls";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("已导出 Excel");
     }
 
     function showToast(message = "已复制") {
@@ -1588,6 +1675,7 @@
     });
 
     el.copyResult.addEventListener("click", copySummary);
+    el.exportExcel.addEventListener("click", exportExcel);
 
     el.form.addEventListener("reset", () => {
       preservationTouched = false;

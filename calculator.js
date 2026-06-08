@@ -240,12 +240,43 @@
     };
   }
 
+  function escapeExcelCell(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function buildExcelWorkbook(sections) {
+    const tables = sections.map((section) => {
+      const rows = section.rows.map((row) => (
+        "<tr>" + row.map((cell) => "<td>" + escapeExcelCell(cell) + "</td>").join("") + "</tr>"
+      )).join("");
+      return "<h2>" + escapeExcelCell(section.title) + "</h2><table>" + rows + "</table>";
+    }).join("");
+
+    return [
+      '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">',
+      "<head>",
+      '<meta charset="UTF-8">',
+      "<style>",
+      "body{font-family:Arial,'Microsoft YaHei',sans-serif;}table{border-collapse:collapse;margin-bottom:24px;}td{border:1px solid #999;padding:6px 10px;}h2{margin:18px 0 8px;}",
+      "</style>",
+      "</head>",
+      "<body>",
+      tables,
+      "</body></html>"
+    ].join("");
+  }
+
   return {
     attorneyEstimate,
     courtAcceptanceFee,
     courtPreservationFee,
     insuranceEstimate,
     workInjuryEstimate,
-    trafficAccidentEstimate
+    trafficAccidentEstimate,
+    buildExcelWorkbook
   };
 });
